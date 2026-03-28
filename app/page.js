@@ -160,7 +160,8 @@ export default function GlobalLotteryLandingPage() {
           </p>
         </div>
       </section>
-<section className="mx-auto max-w-6xl px-6 py-24">
+
+      <section className="mx-auto max-w-6xl px-6 py-24">
         <h2 className="mb-16 text-center text-4xl font-semibold tracking-[0.06em] md:text-5xl">
           3 ganadores. 10 ETH.
         </h2>
@@ -192,11 +193,117 @@ export default function GlobalLotteryLandingPage() {
 
       <section className="px-6 py-32 text-center">
         <h2 className="text-6xl">10€ pueden cambiar tu vida</h2>
-        <button className="mt-10 bg-[#D4AF37] px-10 py-4 text-black rounded-full">
+        <button
+          onClick={() => window.open(stripePaymentLink, '_blank')}
+          className="mt-10 bg-[#D4AF37] px-10 py-4 text-black rounded-full"
+        >
           Entrar ahora
         </button>
       </section>
 
+      {showRegister && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-6 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-[32px] border border-white/10 bg-[#111111] p-8 text-left shadow-2xl shadow-black/50">
+            {!registered ? (
+              <>
+                <div className="mb-6 text-center">
+                  <h3 className="text-3xl font-semibold tracking-[0.05em] text-white">Crear cuenta</h3>
+                  <p className="mt-2 text-sm text-white/55">
+                    Simulación visual para testear el flujo de registro completo.
+                  </p>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <input
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    type="text"
+                    placeholder="Nombre completo"
+                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-white placeholder-white/35 outline-none focus:border-[#D4AF37]"
+                    required
+                  />
+                  <input
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    type="email"
+                    placeholder="Correo electrónico"
+                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-white placeholder-white/35 outline-none focus:border-[#D4AF37]"
+                    required
+                  />
+                  <input
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    type="password"
+                    placeholder="Contraseña"
+                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-white placeholder-white/35 outline-none focus:border-[#D4AF37]"
+                    required
+                  />
+
+                  <button
+                    type="submit"
+                    className="w-full rounded-full bg-[#D4AF37] px-6 py-4 font-semibold tracking-[0.04em] text-black transition hover:scale-[1.02]"
+                  >
+                    Crear cuenta
+                  </button>
+                </form>
+
+                <button
+                  onClick={() => setShowRegister(false)}
+                  className="mt-4 w-full rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm text-white/70 transition hover:bg-white/10"
+                >
+                  Cerrar
+                </button>
+              </>
+            ) : (
+              <div className="text-center">
+                <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#D4AF37] text-2xl font-bold text-black">
+                  ✓
+                </div>
+                <h3 className="text-3xl font-semibold tracking-[0.05em] text-white">Cuenta creada</h3>
+                <p className="mt-3 text-white/60">
+                  Se ha enviado un correo de validación a <span className="text-white">{mockAccount.email}</span>.
+                </p>
+
+                <div className="mt-6 rounded-3xl border border-white/10 bg-white/5 p-5 text-left">
+                  <div className="text-xs uppercase tracking-[0.25em] text-white/40">Simulación de registro</div>
+                  <div className="mt-4 space-y-3 text-sm text-white/75">
+                    <div>
+                      <span className="text-white/45">Código de validación:</span>
+                      <div className="mt-1 text-base font-semibold text-[#D4AF37]">{mockVerificationCode}</div>
+                    </div>
+                    <div>
+                      <span className="text-white/45">Wallet generada:</span>
+                      <div className="mt-1 break-all text-base text-white">{mockAccount.wallet}</div>
+                    </div>
+                    <div>
+                      <span className="text-white/45">Número de sorteo asignado:</span>
+                      <div className="mt-1 text-base font-semibold text-[#D4AF37]">{mockAccount.ticket}</div>
+                    </div>
+                    <div>
+                      <span className="text-white/45">Registrado el:</span>
+                      <div className="mt-1 text-base text-white">{mockAccount.createdAt}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="mt-4 text-xs text-white/40">
+                  Demo visual: al registrarse se descarga automáticamente un CSV con los usuarios para gestionarlo fuera de la web.
+                </p>
+
+                <button
+                  onClick={() => setShowRegister(false)}
+                  className="mt-6 w-full rounded-full bg-[#D4AF37] px-6 py-4 font-semibold tracking-[0.04em] text-black transition hover:scale-[1.02]"
+                >
+                  Continuar
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
