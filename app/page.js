@@ -19,10 +19,7 @@ function downloadCsv(users) {
   const headers = ['id', 'fullName', 'email', 'password', 'wallet', 'ticket', 'createdAt', 'verified', 'paymentStatus'];
   const rows = users.map((user) =>
     headers
-      .map((header) => {
-        const value = String(user[header] ?? '').replace(/"/g, '""');
-        return `"${value}"`;
-      })
+      .map((header) => `"${String(user[header] ?? '').replace(/"/g, '""')}"`)
       .join(',')
   );
 
@@ -44,26 +41,25 @@ export default function GlobalLotteryLandingPage() {
   const [showRegister, setShowRegister] = useState(false);
   const [registered, setRegistered] = useState(false);
   const [activeSection, setActiveSection] = useState('cuenta');
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     password: '',
   });
+
   const [mockAccount, setMockAccount] = useState({
-    id: '',
     fullName: '',
     wallet: '',
     ticket: '',
     email: '',
-    createdAt: '',
     paymentStatus: 'Pendiente de pago',
   });
 
   useEffect(() => {
-    const savedSession = window.localStorage.getItem('globalLotteryCurrentUser');
-    if (savedSession) {
-      const parsed = JSON.parse(savedSession);
-      setMockAccount(parsed);
+    const saved = localStorage.getItem('user');
+    if (saved) {
+      setMockAccount(JSON.parse(saved));
       setRegistered(true);
     }
   }, []);
@@ -72,407 +68,154 @@ export default function GlobalLotteryLandingPage() {
     return Math.random().toString(36).slice(2, 8).toUpperCase();
   }, [registered]);
 
-  const openRegister = () => {
-    setShowRegister(true);
-    setFormData({ fullName: '', email: '', password: '' });
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
 
     const newUser = {
-      id: Date.now(),
       fullName: formData.fullName,
-      email: formData.email || 'usuario@correo.com',
-      password: formData.password,
+      email: formData.email,
       wallet: generateMockWallet(),
       ticket: generateMockTicket(),
-      createdAt: new Date().toLocaleString('es-ES'),
-      verified: false,
       paymentStatus: 'Pendiente de pago',
     };
 
-    const existingUsers = JSON.parse(window.localStorage.getItem('globalLotteryUsers') || '[]');
-    const updatedUsers = [...existingUsers, newUser];
-
-    window.localStorage.setItem('globalLotteryUsers', JSON.stringify(updatedUsers));
-    window.localStorage.setItem('globalLotteryCurrentUser', JSON.stringify(newUser));
-    downloadCsv(updatedUsers);
-
+    localStorage.setItem('user', JSON.stringify(newUser));
     setMockAccount(newUser);
     setRegistered(true);
     setShowRegister(false);
-    setActiveSection('cuenta');
   };
 
-  const handleLogout = () => {
-    window.localStorage.removeItem('globalLotteryCurrentUser');
+  const logout = () => {
+    localStorage.removeItem('user');
     setRegistered(false);
-    setActiveSection('cuenta');
-    setMockAccount({
-      id: '',
-      fullName: '',
-      wallet: '',
-      ticket: '',
-      email: '',
-      createdAt: '',
-      paymentStatus: 'Pendiente de pago',
-    });
-  };
-
-  const renderPrivateContent = () => {
-    if (activeSection === 'participacion') {
-      return (
-        <div className="mx-auto max-w-5xl px-6 py-16">
-          <div className="rounded-[32px] border border-white/10 bg-white/5 p-8 backdrop-blur-sm">
-            <div className="text-sm uppercase tracking-[0.3em] text-[#D4AF37]">Mi participación</div>
-            <h2 className="mt-4 text-4xl text-white">Tu acceso al sorteo</h2>
-
-            <div className="mt-10 grid gap-6 md:grid-cols-2">
-              <div className="rounded-3xl border border-white/10 bg-black/30 p-6">
-                <div className="text-sm text-white/45">Número de sorteo</div>
-                <div className="mt-3 text-3xl font-semibold text-[#D4AF37]">{mockAccount.ticket}</div>
-              </div>
-
-              <div className="rounded-3xl border border-white/10 bg-black/30 p-6">
-                <div className="text-sm text-white/45">Estado</div>
-                <div className="mt-3 text-2xl font-semibold text-white">{mockAccount.paymentStatus}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (activeSection === 'pago') {
-      return (
-        <div className="mx-auto max-w-5xl px-6 py-16">
-          <div className="rounded-[32px] border border-white/10 bg-white/5 p-8 text-center backdrop-blur-sm">
-            <div className="text-sm uppercase tracking-[0.3em] text-[#D4AF37]">Pago</div>
-            <h2 className="mt-4 text-4xl text-white">Completa tu participación</h2>
-            <p className="mx-auto mt-4 max-w-2xl text-white/65">
-              Ya tienes tu cuenta creada y tu número asignado. Solo falta completar el pago para activar tu participación en el sorteo.
-            </p>
-
-            <div className="mx-auto mt-10 max-w-xl rounded-3xl border border-white/10 bg-black/30 p-6 text-left">
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                <span className="text-white/50">Importe</span>
-                <span className="text-2xl text-[#D4AF37]">10€</span>
-              </div>
-              <div className="flex items-center justify-between py-4">
-                <span className="text-white/50">Estado actual</span>
-                <span className="text-white">{mockAccount.paymentStatus}</span>
-              </div>
-            </div>
-
-            <button
-              onClick={() => window.open(stripePaymentLink, '_blank')}
-              className="mt-10 rounded-full bg-[#D4AF37] px-12 py-5 text-xl font-semibold text-black transition hover:scale-105"
-            >
-              Pagar ahora
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="mx-auto max-w-5xl px-6 py-16">
-        <div className="rounded-[32px] border border-white/10 bg-white/5 p-8 backdrop-blur-sm">
-          <div className="text-sm uppercase tracking-[0.3em] text-[#D4AF37]">Mi cuenta</div>
-          <h2 className="mt-4 text-4xl text-white">
-            Bienvenido, {mockAccount.fullName || 'Usuario'}
-          </h2>
-          <p className="mt-4 max-w-2xl text-white/65">
-            Tu cuenta ha sido creada correctamente. Ya tienes tu wallet asignada y tu número de sorteo reservado.
-          </p>
-
-          <div className="mt-10 grid gap-6 md:grid-cols-2">
-            <div className="rounded-3xl border border-white/10 bg-black/30 p-6">
-              <div className="text-sm text-white/45">Correo electrónico</div>
-              <div className="mt-3 text-lg text-white">{mockAccount.email}</div>
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-black/30 p-6">
-              <div className="text-sm text-white/45">Código de validación</div>
-              <div className="mt-3 text-2xl font-semibold text-[#D4AF37]">{mockVerificationCode}</div>
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-black/30 p-6 md:col-span-2">
-              <div className="text-sm text-white/45">Wallet asignada</div>
-              <div className="mt-3 break-all text-base text-white">{mockAccount.wallet}</div>
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-black/30 p-6">
-              <div className="text-sm text-white/45">Número de sorteo</div>
-              <div className="mt-3 text-3xl font-semibold text-[#D4AF37]">{mockAccount.ticket}</div>
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-black/30 p-6">
-              <div className="text-sm text-white/45">Estado del pago</div>
-              <div className="mt-3 text-2xl font-semibold text-white">{mockAccount.paymentStatus}</div>
-            </div>
-          </div>
-
-          <div className="mt-10 flex flex-wrap items-center gap-4">
-            <button
-              onClick={() => setActiveSection('pago')}
-              className="rounded-full bg-[#D4AF37] px-8 py-4 font-semibold text-black transition hover:scale-105"
-            >
-              Pagar ahora
-            </button>
-
-            <button
-              onClick={() => window.open('https://kick.com/global-lottery', '_blank')}
-              className="rounded-full border border-[#53FC18]/30 bg-[#53FC18]/10 px-8 py-4 font-semibold text-[#53FC18] transition hover:scale-105 hover:bg-[#53FC18]/20"
-            >
-              Ver sorteo en Kick
-            </button>
-          </div>
-        </div>
-      </div>
-    );
   };
 
   if (registered) {
     return (
-      <div className="min-h-screen bg-black text-white [font-family:Georgia,'Times_New_Roman',serif]">
-        <header className="sticky top-0 z-40 border-b border-white/10 bg-black/80 backdrop-blur-xl">
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-            <div className="flex items-center gap-4">
-              <div className="text-2xl font-black tracking-[-0.08em] text-[#D4AF37] md:text-4xl">GL</div>
-              <div>
-                <div className="text-sm uppercase tracking-[0.3em] text-white/45">GLOBAL LOTTERY</div>
-                <div className="text-xs text-white/45">Zona privada</div>
-              </div>
-            </div>
+      <div className="min-h-screen bg-black text-white">
+        
+        {/* HEADER */}
+        <header className="border-b border-white/10 p-6 flex justify-between">
+          <div>GLOBAL LOTTERY</div>
 
-            <nav className="hidden items-center gap-3 lg:flex">
-              <button
-                onClick={() => setActiveSection('cuenta')}
-                className={`rounded-full px-5 py-2 text-sm transition ${
-                  activeSection === 'cuenta'
-                    ? 'bg-[#D4AF37] text-black'
-                    : 'bg-white/5 text-white/75 hover:bg-white/10'
-                }`}
-              >
-                Mi cuenta
-              </button>
-
-              <button
-                onClick={() => setActiveSection('participacion')}
-                className={`rounded-full px-5 py-2 text-sm transition ${
-                  activeSection === 'participacion'
-                    ? 'bg-[#D4AF37] text-black'
-                    : 'bg-white/5 text-white/75 hover:bg-white/10'
-                }`}
-              >
-                Mi participación
-              </button>
-
-              <button
-                onClick={() => setActiveSection('pago')}
-                className={`rounded-full px-5 py-2 text-sm transition ${
-                  activeSection === 'pago'
-                    ? 'bg-[#D4AF37] text-black'
-                    : 'bg-white/5 text-white/75 hover:bg-white/10'
-                }`}
-              >
-                Pagar ahora
-              </button>
-
-              <button
-                onClick={() => window.open('https://kick.com/global-lottery', '_blank')}
-                className="rounded-full border border-[#53FC18]/30 bg-[#53FC18]/10 px-5 py-2 text-sm text-[#53FC18] transition hover:bg-[#53FC18]/20"
-              >
-                Ver sorteo en Kick
-              </button>
-
-              <button
-                onClick={handleLogout}
-                className="rounded-full bg-white/5 px-5 py-2 text-sm text-white/75 transition hover:bg-white/10"
-              >
-                Cerrar sesión
-              </button>
-            </nav>
+          <div className="flex gap-4">
+            <button onClick={() => setActiveSection('cuenta')}>Mi cuenta</button>
+            <button onClick={() => setActiveSection('participacion')}>Mi participación</button>
+            <button onClick={() => setActiveSection('pago')}>Pagar</button>
+            <button onClick={() => window.open('https://kick.com/global-lottery', '_blank')}>
+              Kick
+            </button>
+            <button onClick={logout}>Cerrar</button>
           </div>
         </header>
 
-        {renderPrivateContent()}
+        {/* CONTENIDO */}
+        <div className="p-10 text-center">
+          <h2 className="text-4xl mb-6">Bienvenido {mockAccount.fullName}</h2>
+          <p>Wallet: {mockAccount.wallet}</p>
+          <p>Ticket: {mockAccount.ticket}</p>
+          <p>Estado: {mockAccount.paymentStatus}</p>
+
+          <button
+            onClick={() => window.open(stripePaymentLink, '_blank')}
+            className="mt-6 bg-[#D4AF37] px-6 py-3 text-black rounded"
+          >
+            Pagar ahora
+          </button>
+        </div>
+
+        {/* FOOTER */}
+        <footer className="border-t border-white/10 px-6 py-12 text-sm text-white/50 mt-20">
+          <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+
+            <div className="text-white">
+              GLOBAL LOTTERY © 2026
+            </div>
+
+            <div className="flex flex-wrap justify-center gap-6 text-white/60">
+
+              <a href="/aviso-legal" className="hover:text-white transition">
+                Aviso legal
+              </a>
+
+              <a href="/privacidad" className="hover:text-white transition">
+                Privacidad
+              </a>
+
+              <a href="/terminos" className="hover:text-white transition">
+                Términos
+              </a>
+
+              <a href="mailto:info@global-lottery.com" className="hover:text-white transition">
+                Contacto
+              </a>
+
+            </div>
+
+            <div className="text-white/60">
+              Kick: global-lottery
+            </div>
+
+          </div>
+        </footer>
+
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-black text-white [font-family:Georgia,'Times_New_Roman',serif]">
-      <section className="relative flex min-h-screen flex-col items-center justify-center px-6 py-24 text-center">
-        <div className="absolute h-[800px] w-[800px] rounded-full bg-[#D4AF37]/20 blur-[180px] animate-pulse" />
+    <div className="min-h-screen bg-black text-white text-center">
 
-        <div className="absolute left-0 top-0 flex w-full justify-end p-6">
-          <button
-            onClick={openRegister}
-            className="rounded-full bg-[#D4AF37] px-6 py-2 font-semibold text-black transition hover:scale-105"
-          >
-            CREAR CUENTA
-          </button>
-        </div>
+      <button onClick={() => setShowRegister(true)} className="m-6 bg-[#D4AF37] px-4 py-2 text-black">
+        Crear cuenta
+      </button>
 
-        <div className="relative z-10 flex max-w-5xl flex-col items-center">
-          <div className="mb-10 flex select-none flex-col items-center">
-            <div className="leading-none">
-              <span className="text-[88px] font-black tracking-[-0.08em] text-[#D4AF37] drop-shadow-[0_0_25px_rgba(212,175,55,0.25)] md:text-[128px]">
-                GL
-              </span>
-            </div>
-            <div className="-mt-2 text-[24px] font-semibold tracking-[0.22em] text-white/92 md:text-[34px]">
-              GLOBAL LOTTERY
-            </div>
-            <div className="mt-1 text-[10px] font-medium uppercase tracking-[0.6em] text-[#D4AF37] md:text-[13px]">
-              Since 2026
-            </div>
-          </div>
-
-          <h1 className="relative text-6xl font-semibold leading-tight tracking-[0.04em] md:text-8xl">
-            <span className="absolute inset-0 animate-pulse select-none blur-2xl text-[#D4AF37]/35">
-              10 ETH
-            </span>
-            <span className="relative bg-gradient-to-b from-[#FFF1B8] via-[#D4AF37] to-[#8C6A12] bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(212,175,55,0.45)]">
-              10 ETH
-            </span>
-          </h1>
-
-          <p className="mt-4 text-xl text-white/70">
-            3 ganadores · Participa desde 10€
-          </p>
-
-          <button
-            onClick={() => window.open('https://kick.com/global-lottery', '_blank')}
-            className="mt-8 inline-flex items-center gap-3 rounded-full border border-[#53FC18]/30 bg-[#53FC18]/10 px-6 py-3 text-sm text-white backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-[#53FC18]/20"
-          >
-            <img
-              src="/kick-logo.png"
-              alt="Kick"
-              className="h-6 w-auto object-contain"
-            />
-            <span className="font-medium tracking-wide text-[#53FC18]">
-              Ver sorteo en directo
-            </span>
-          </button>
-
-          <button
-            onClick={() => window.open(stripePaymentLink, '_blank')}
-            className="mt-12 rounded-full bg-[#D4AF37] px-12 py-6 text-2xl font-semibold tracking-[0.04em] text-black transition hover:scale-105"
-          >
-            Participar ahora
-          </button>
-
-          <p className="mt-6 text-sm text-white/50">
-            Pago seguro con tarjeta a través de Stripe.
-          </p>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-6 py-24">
-        <h2 className="mb-16 text-center text-4xl font-semibold tracking-[0.06em] md:text-5xl">
-          3 ganadores. 10 ETH.
-        </h2>
-
-        <div className="grid gap-8 text-center md:grid-cols-3">
-          <div className="rounded-3xl border border-[#D4AF37] bg-[#D4AF37]/10 p-10">
-            <div className="text-sm text-white/60">1º PREMIO</div>
-            <div className="mt-4 text-5xl text-[#D4AF37]">6 ETH</div>
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-10">
-            <div className="text-sm text-white/60">2º PREMIO</div>
-            <div className="mt-4 text-5xl text-[#D4AF37]">3 ETH</div>
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-10">
-            <div className="text-sm text-white/60">3º PREMIO</div>
-            <div className="mt-4 text-5xl text-[#D4AF37]">1 ETH</div>
-          </div>
-        </div>
-      </section>
-
-      <section className="px-6 py-24 text-center">
-        <h2 className="text-5xl">¿Qué harías con 6 ETH?</h2>
-        <p className="mt-6 text-white/70">
-          Viajar, invertir, dejar tu trabajo... Todo empieza con una decisión.
-        </p>
-      </section>
-
-      <section className="px-6 py-32 text-center">
-        <h2 className="text-6xl">10€ pueden cambiar tu vida</h2>
-        <button
-          onClick={() => window.open(stripePaymentLink, '_blank')}
-          className="mt-10 rounded-full bg-[#D4AF37] px-10 py-4 text-black"
-        >
-          Entrar ahora
-        </button>
-      </section>
+      <h1 className="text-6xl mt-20">10 ETH</h1>
 
       {showRegister && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-6 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-[32px] border border-white/10 bg-[#111111] p-8 text-left shadow-2xl shadow-black/50">
-            <div className="mb-6 text-center">
-              <h3 className="text-3xl font-semibold tracking-[0.05em] text-white">Crear cuenta</h3>
-              <p className="mt-2 text-sm text-white/55">
-                Regístrate para acceder a tu zona privada.
-              </p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                type="text"
-                placeholder="Nombre completo"
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-white placeholder-white/35 outline-none focus:border-[#D4AF37]"
-                required
-              />
-              <input
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                type="email"
-                placeholder="Correo electrónico"
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-white placeholder-white/35 outline-none focus:border-[#D4AF37]"
-                required
-              />
-              <input
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                type="password"
-                placeholder="Contraseña"
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-white placeholder-white/35 outline-none focus:border-[#D4AF37]"
-                required
-              />
-
-              <button
-                type="submit"
-                className="w-full rounded-full bg-[#D4AF37] px-6 py-4 font-semibold tracking-[0.04em] text-black transition hover:scale-[1.02]"
-              >
-                Crear cuenta
-              </button>
-            </form>
-
-            <button
-              onClick={() => setShowRegister(false)}
-              className="mt-4 w-full rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm text-white/70 transition hover:bg-white/10"
-            >
-              Cerrar
-            </button>
-          </div>
-        </div>
+        <form onSubmit={handleSubmit} className="mt-10">
+          <input name="fullName" placeholder="Nombre" onChange={(e)=>setFormData({...formData, fullName:e.target.value})} />
+          <input name="email" placeholder="Email" onChange={(e)=>setFormData({...formData, email:e.target.value})} />
+          <input name="password" placeholder="Password" onChange={(e)=>setFormData({...formData, password:e.target.value})} />
+          <button>Crear cuenta</button>
+        </form>
       )}
+
+      {/* FOOTER */}
+      <footer className="border-t border-white/10 px-6 py-12 text-sm text-white/50 mt-20">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+
+          <div className="text-white">
+            GLOBAL LOTTERY © 2026
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-6 text-white/60">
+
+            <a href="/aviso-legal" className="hover:text-white transition">
+              Aviso legal
+            </a>
+
+            <a href="/privacidad" className="hover:text-white transition">
+              Privacidad
+            </a>
+
+            <a href="/terminos" className="hover:text-white transition">
+              Términos
+            </a>
+
+            <a href="mailto:info@global-lottery.com" className="hover:text-white transition">
+              Contacto
+            </a>
+
+          </div>
+
+          <div className="text-white/60">
+            Kick: global-lottery
+          </div>
+
+        </div>
+      </footer>
+
     </div>
   );
 }
