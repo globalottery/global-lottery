@@ -141,12 +141,17 @@ export default function GlobalLotteryLandingPage() {
             3 ganadores · Participa desde 10€
           </p>
 
-          <div className="mt-8 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm text-white/70 backdrop-blur-sm">
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#53FC18] text-[11px] font-black text-black shadow-[0_0_18px_rgba(83,252,24,0.45)]">
-              K
-            </span>
-            <span>Sorteo en directo en Kick</span>
-          </div>
+          <button
+  onClick={() => window.open('https://kick.com/global-lottery', '_blank')}
+  className="mt-8 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm text-white/80 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-white/10 hover:shadow-[0_0_20px_rgba(83,252,24,0.25)]"
+>
+  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#53FC18] text-[11px] font-black text-black shadow-[0_0_18px_rgba(83,252,24,0.45)]">
+    K
+  </span>
+  <span className="font-medium tracking-wide">
+    Ver sorteo en directo en Kick
+  </span>
+</button>
 
           <button
             onClick={() => window.open(stripePaymentLink, '_blank')}
