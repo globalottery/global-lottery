@@ -434,10 +434,88 @@ export default function GlobalLotteryLandingPage() {
       </section>
 
       <section className="px-6 py-24 text-center">
+        <h2 className="mb-12 text-5xl">Cómo funciona</h2>
+
+        <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-3">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+            <div className="mb-4 text-2xl text-[#D4AF37]">1</div>
+            <h3 className="mb-3 text-xl text-white">Crea tu cuenta</h3>
+            <p className="text-white/70">
+              Regístrate en GLOBAL LOTTERY en menos de un minuto y accede a tu zona privada.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+            <div className="mb-4 text-2xl text-[#D4AF37]">2</div>
+            <h3 className="mb-3 text-xl text-white">Activa tu participación</h3>
+            <p className="text-white/70">
+              Completa el pago para confirmar tu acceso al sorteo y bloquear tu número asignado.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+            <div className="mb-4 text-2xl text-[#D4AF37]">3</div>
+            <h3 className="mb-3 text-xl text-white">Sigue el sorteo en directo</h3>
+            <p className="text-white/70">
+              Los ganadores se anunciarán en nuestra cuenta oficial de Kick.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="px-6 py-24 text-center">
         <h2 className="text-5xl">¿Qué harías con 6 ETH?</h2>
         <p className="mt-6 text-white/70">
           Viajar, invertir, dejar tu trabajo... Todo empieza con una decisión.
         </p>
+      </section>
+
+      <section className="mx-auto max-w-4xl px-6 py-24">
+        <h2 className="mb-12 text-center text-5xl">Preguntas frecuentes</h2>
+
+        <div className="space-y-8 text-left">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+            <h3 className="text-xl text-white">¿Cuánto cuesta participar?</h3>
+            <p className="mt-3 text-white/70">
+              Participar cuesta 10€.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+            <h3 className="text-xl text-white">¿Cuántos ganadores habrá?</h3>
+            <p className="mt-3 text-white/70">
+              Habrá 3 ganadores: 1º premio 6 ETH, 2º premio 3 ETH y 3º premio 1 ETH.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+            <h3 className="text-xl text-white">¿Dónde se anunciarán los ganadores?</h3>
+            <p className="mt-3 text-white/70">
+              El sorteo se realizará en directo en nuestra cuenta oficial de Kick.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+            <h3 className="text-xl text-white">¿Cuántas participaciones puede tener cada usuario?</h3>
+            <p className="mt-3 text-white/70">
+              Cada usuario podrá tener una única participación.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+            <h3 className="text-xl text-white">¿Qué ocurre después de crear mi cuenta?</h3>
+            <p className="mt-3 text-white/70">
+              Accederás a tu zona privada, donde verás tu wallet asignada, tu número de sorteo y el estado de tu pago.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+            <h3 className="text-xl text-white">¿Qué pasa si todavía no he pagado?</h3>
+            <p className="mt-3 text-white/70">
+              Tu estado aparecerá como pendiente de pago hasta completar tu participación.
+            </p>
+          </div>
+        </div>
       </section>
 
       <section className="px-6 py-32 text-center">
